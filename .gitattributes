@@ -1,0 +1,2 @@
+# keep every file byte-exact (no end-of-line conversion)
+* -text
