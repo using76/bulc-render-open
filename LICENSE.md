@@ -9,8 +9,8 @@ Isaac Sim 연동 코드와 문서, 그리고 그 결과물(NanoVDB 프레임, �
 
 1. **로그인:** BUL:C(불씨) 계정으로 `bulbit_sim login`을 실행해 로그인해야 쓸 수 있습니다. 라이선스는 BUL:C와 같은 계정·라이선스
    서버를 씁니다.
-2. **기간:** 한 컴퓨터에서 처음 로그인한 때부터 **15일** 동안 쓸 수 있습니다. 로그아웃하거나 다시 로그인해도 기간은 처음 로그인한
-   때부터 셉니다.
+2. **기간:** 한 컴퓨터에서 처음 로그인한 때부터 **15일** 동안 쓸 수 있습니다. 로그아웃하거나 다시 로그인해도, 로그인 기록을 지우거나
+   같은 컴퓨터의 다른 Windows 계정으로 로그인해도 기간은 처음 로그인한 때부터 셉니다.
 3. **용도:** **연구와 교육 목적으로만** 쓸 수 있습니다. **상업적 용도로는 쓸 수 없습니다.** 상업적 용도에는 유료 제품·서비스·용역에
    쓰는 것, 그 결과물을 팔거나 고객에게 넘기는 것이 들어갑니다.
 4. **15일 이후:** 계속 쓰려면 문의 바랍니다. **simul@msimul.com**, **https://bulc.msimul.com**
@@ -19,7 +19,7 @@ Isaac Sim 연동 코드와 문서, 그리고 그 결과물(NanoVDB 프레임, �
 
 ## 금지
 
-- 라이선스 검사를 우회하거나, 라이선스 기록을 고치거나 다른 컴퓨터로 옮기는 것.
+- 라이선스 검사를 우회하거나, 라이선스 기록을 고치거나 다른 컴퓨터로 옮기는 것, 기간을 늘리려고 기록을 지우는 것.
 - 이 소프트웨어나 그 일부를 허락 없이 다시 배포하거나 판매하는 것.
 
 ## 보증과 책임
@@ -46,8 +46,9 @@ This software is not open source. These terms apply to the BUL:BIT renderer, the
 
 1. **Sign-in:** run `bulbit_sim login` and sign in with a BUL:C account. The license uses the same account and license
    server as BUL:C.
-2. **Period:** usable on a computer for **15 days** from the first sign-in on that computer. Signing out or signing in
-   again does not restart the 15 days.
+2. **Period:** usable on a computer for **15 days** from the first sign-in on that computer. Signing out, signing in
+   again, deleting the login record or signing in from another Windows account of the same computer does not restart
+   the 15 days.
 3. **Use:** **research and education only. Commercial use is not permitted.** Commercial use includes use in a paid
    product, service or contract, and selling or delivering the outputs to customers.
 4. **After 15 days:** to keep using BUL:BIT, contact **simul@msimul.com** or **https://bulc.msimul.com**.
@@ -57,7 +58,8 @@ This software is not open source. These terms apply to the BUL:BIT renderer, the
 
 ## Not permitted
 
-- Bypassing the license check, editing the license record, or moving it to another computer.
+- Bypassing the license check, editing the license record or moving it to another computer, or deleting license records
+  to extend the free pass.
 - Redistributing or selling this software or any part of it without permission.
 
 ## Warranty and liability
