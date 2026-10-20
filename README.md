@@ -76,8 +76,9 @@ python C:\BULBIT\examples\render_basic_frame.py iso9705_200kw_nvdb 20.0 fire_20s
 ## 이용 조건
 
 - BUL:C 계정으로 로그인한 PC에서 **처음 로그인한 때부터 15일** 동안 쓸 수 있습니다.
-- **연구와 교육 목적으로만** 쓸 수 있습니다. **상업적 용도로는 쓸 수 없습니다.**
+- 무료체험 버전은 **연구와 교육 목적으로만** 쓸 수 있습니다. **상업적 용도로는 쓸 수 없습니다.**
 - 15일이 지난 뒤에도 쓰려면 문의 바랍니다: **simul@msimul.com**, **https://bulc.msimul.com**
+- 상업용 이용은 문의 바랍니다.
 - 전체 조건: [LICENSE.md](LICENSE.md). 함께 배포하는 NVIDIA cuFFT: [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ---
