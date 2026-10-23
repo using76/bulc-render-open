@@ -39,7 +39,8 @@ BUL:BIT 렌더러로 그렸습니다. 불꽃은 열방출률(`hrrpuv`)로, 연�
 
 다음 버전에 넣을 불꽃 세부 기능(FX)의 첫 비교입니다. **0.90.0 배포판에는 아직 들어 있지 않습니다.**
 ISO 9705 방 구석 화재(약 200 kW)를 BUL:C로 계산하고, 구석의 1 × 1 × 2.4 m 상자만 1.67 cm 격자로 다시 풀었습니다.
-세 화면 모두 불꽃에서 같은 거리에 둔 카메라로 불꽃만 그렸습니다.
+움직임만 비교하려고 세 화면 모두 같은 Blender 셰이더와 불꽃에서 같은 거리의 카메라로 불꽃만 그렸습니다
+(BUL:BIT 렌더러 화면이 아닙니다).
 
 - **Mantaflow 원본**: 위 미분무 영상에 쓴 Blender Mantaflow 불꽃(1.5 cm 격자)
 - **BUL:C (기존 CFD)**: BUL:C 계산을 따라가는 불꽃, FX 없음. 매끈한 기둥입니다
@@ -126,7 +127,8 @@ download it from [Releases](https://github.com/using76/bulc-render-open/releases
   illustration.
 - **In development (not in 0.90.0): BUL:BIT flame detail (FX).** A first comparison on the ISO 9705 corner fire:
   Blender Mantaflow (the promo film's flame), BUL:C (existing CFD, no FX) and BUL:BIT with FX, which keeps the flame size
-  of the BUL:C result and adds small eddies and flicker ([MP4](docs/samples/bulbit_fx_flame_detail_preview.mp4)).
+  of the BUL:C result and adds small eddies and flicker ([MP4](docs/samples/bulbit_fx_flame_detail_preview.mp4); all three are drawn with the
+  same Blender shader to compare the motion only, not with the BUL:BIT renderer).
   Still being calibrated.
 
 © 2026 메테오시뮬레이션 (Meteor Simulation). All rights reserved.
