@@ -31,6 +31,30 @@ BUL:BIT 렌더러로 그렸습니다. 불꽃은 열방출률(`hrrpuv`)로, 연�
 | [MP4 (10 s, 1280×720)](docs/samples/watermist_iso9705_corner_fire.mp4) | [MP4 (10 s, 1280×720)](docs/samples/robot_quadruped_walk_turret_aim.mp4) |
 | 미분무 소화 홍보 영상의 도입부입니다. **BUL:C 계산이 아니라 Blender로 그린 개요 장면입니다**(불꽃은 BULC기반 형상작성후 Blender Mantaflow, 렌더는 EEVEE, 연기는 BULC기반). | 불과 연기는 **BUL:C 계산**입니다(자동차운반선 갑판 EV 화재, 28~32 s, 약 1.5~1.9 MW). 렌더는 지금의 BUL:BIT 렌더러보다 먼저 쓰던 Blender Cycles 파이프라인입니다. **로봇과 그 움직임은 일러스트**(스크립트 애니메이션)이고, 학습한 정책이나 Isaac Sim 물리가 아닙니다 |
 
+### 개발 중: 불빛 BUL:BIT 불꽃 세부(FX)
+
+![Mantaflow 원본, BUL:C(기존 CFD), 불빛 BUL:BIT 불꽃 비교](docs/samples/bulbit_fx_flame_detail_preview.webp)
+
+[MP4 (6 s, 792×720)](docs/samples/bulbit_fx_flame_detail_preview.mp4)
+
+다음 버전에 넣을 불꽃 세부 기능(FX)의 첫 비교입니다. **0.90.0 배포판에는 아직 들어 있지 않습니다.**
+ISO 9705 방 구석 화재(약 200 kW)를 BUL:C로 계산하고, 구석의 1 × 1 × 2.4 m 상자만 1.67 cm 격자로 다시 풀었습니다.
+세 화면 모두 불꽃에서 같은 거리에 둔 카메라로 불꽃만 그렸습니다.
+
+- **Mantaflow 원본**: 위 미분무 영상에 쓴 Blender Mantaflow 불꽃(1.5 cm 격자)
+- **BUL:C (기존 CFD)**: BUL:C 계산을 따라가는 불꽃, FX 없음. 매끈한 기둥입니다
+- **불빛 BUL:BIT**: 같은 계산에 FX를 켰습니다. 불꽃 크기는 BUL:C 계산에 맞추고(10 cm 칸으로 묶은 불꽃 부피가
+  BUL:C의 1.01배), 작은 소용돌이와 깜빡임을 더합니다
+
+| | Mantaflow 원본 | BUL:C (기존 CFD) | 불빛 BUL:BIT |
+|---|---|---|---|
+| 불꽃 꼭대기 | 1.1 m | 2.4 m (천장) | 2.4 m (천장) |
+| 밝기 깜빡임 | 0.155 | 0.025 | 0.253 |
+| 윤곽 이동 (픽셀/프레임) | 2.7 | 0.3 | 4.1 |
+
+Mantaflow 불꽃은 영상용으로 따로 맞춘 크기입니다. BUL:C 계산에서는 이 구석 화재의 불꽃이 천장까지 닿고, BUL:BIT는 그
+크기를 따릅니다. 아직 보정 중입니다. 지금은 깜빡임이 Mantaflow보다 세고, 버너 바로 위 아래쪽은 아직 매끈합니다.
+
 ---
 
 ## 들어 있는 것
@@ -100,5 +124,9 @@ download it from [Releases](https://github.com/using76/bulc-render-open/releases
 - The promo-film clips above are honest about what they are: the ISO 9705 clip is a Blender illustration (not BUL:C); in
   the robot clip the fire and smoke are BUL:C results rendered with an earlier Blender pipeline, and the robot is an
   illustration.
+- **In development (not in 0.90.0): BUL:BIT flame detail (FX).** A first comparison on the ISO 9705 corner fire:
+  Blender Mantaflow (the promo film's flame), BUL:C (existing CFD, no FX) and BUL:BIT with FX, which keeps the flame size
+  of the BUL:C result and adds small eddies and flicker ([MP4](docs/samples/bulbit_fx_flame_detail_preview.mp4)).
+  Still being calibrated.
 
 © 2026 메테오시뮬레이션 (Meteor Simulation). All rights reserved.
