@@ -1,6 +1,9 @@
 # BUL:BIT 사용설명서
 
-BUL:BIT(불빛) 0.90.0, 기본 모드. 2026-10-20.
+BUL:BIT(불빛) 0.91.0, 기본 모드. 2026-10-23.
+
+**0.91.0에서 새로 생긴 것:** 불꽃 세부(FX). Mantaflow 불꽃처럼 깜빡이고 작게 흔들리는 불꽃을 BUL:C 계산의 열방출률로
+만듭니다(6.5절). 계산 코어 `bulbit_sim`은 0.90.0과 같습니다(실행 화면의 버전 표기도 0.90.0).
 
 > BUL:C computes the fire. BUL:BIT renders it. — 불씨(BUL:C)가 불을 계산하고, 불빛(BUL:BIT)이 그 불을 그린다.
 
@@ -15,9 +18,9 @@ BUL:BIT는 **화재 렌더러**입니다. 화재 시뮬레이터 BUL:C(불씨)�
 |---|---|---|
 | 계산 코어 | `bin/bulbit_sim.exe` | FDS 형식의 화재 입력(`.fds`)을 GPU로 계산하고, 렌더용 NanoVDB 프레임만 씁니다 |
 | 렌더 라이브러리 | `bin/bulbit.dll`, `include/bulbit.h` | 연기와 불꽃 볼륨을 카메라 영상으로 그립니다(CUDA). C ABI |
-| Python 패키지 | `python/bulbit` | `bulbit.dll`의 Python 바인딩. torch·Warp·CuPy의 CUDA 배열을 복사 없이 받습니다 |
+| Python 패키지 | `python/bulbit` | `bulbit.dll`의 Python 바인딩. torch·Warp·CuPy의 CUDA 배열을 복사 없이 받습니다. 불꽃 세부는 `bulbit.fx`(0.91.0부터) |
 | 프레임 도구 | `python/bulbit_basic` | NanoVDB 프레임 읽기(`frames`), 열방출률로 불꽃 만들기(`hrr_flame`) |
-| 예제 | `examples/` | ISO 9705 방 화재 입력, 프레임 한 장을 그리는 스크립트 |
+| 예제 | `examples/` | ISO 9705 방 화재 입력, 프레임 한 장을 그리는 스크립트, 불꽃 세부 영상을 만드는 스크립트 |
 
 **기본 모드.** 지금 열려 있는 기능은 기본 모드뿐입니다. 프레임마다 세 가지 값을 내보내고, 그것으로 불꽃과 연기를 그립니다.
 
@@ -51,7 +54,7 @@ Pro 기능(온도, 속도, CO, CO₂, 압력, 열화상 등)은 잠겨 있습니
 
 ## 3. 설치
 
-1. GitHub의 [Releases](https://github.com/using76/bulc-render-open/releases)에서 `bulbit-0.90.0-win64.zip`을 받습니다.
+1. GitHub의 [Releases](https://github.com/using76/bulc-render-open/releases)에서 `bulbit-0.91.0-win64.zip`을 받습니다.
 2. 원하는 곳에 풉니다. 이 설명서에서는 `C:\BULBIT`이라고 합니다.
 
 ```
@@ -60,7 +63,7 @@ C:\BULBIT\
   include\    bulbit.h
   python\     bulbit\  bulbit_basic\
   spec\       look_v0.json  look_v1.json  look_v2.json
-  examples\   iso9705_200kw.fds  render_basic_frame.py
+  examples\   iso9705_200kw.fds  render_basic_frame.py  render_fx_video.py
   docs\       MANUAL.md
   LICENSE.md  THIRD_PARTY_NOTICES.md
 ```
@@ -267,17 +270,104 @@ Isaac Sim이나 Isaac Lab의 Python에서 `bulbit`을 불러 카메라마다 불
 - 기본 모드에는 온도가 없으므로 열화상 카메라와 열 노출은 없습니다(Pro, 잠김).
 - Go2 로봇과 ROS 2를 묶은 소방 로봇 학습 환경 전체는 이 배포에 들어 있지 않습니다. 필요하면 문의 바랍니다.
 
+### 6.5 불꽃 세부 (FX), 0.91.0부터
+
+**0.91.0부터 들어 있습니다.** 6.3절의 기본 불꽃은 열방출률을 0.1 m 격자로 옮긴 것이라 매끈한 덩어리로 보입니다. 불꽃 세부(FX)는
+불 둘레의 작은 상자에서 불꽃을 고운 격자(기본 약 1.7 cm)로 따로 풀어, Mantaflow 불꽃처럼 깜빡이고 작게 흔들리는 불꽃을 만듭니다.
+불이 어디서 얼마나 크게 타는지는 BUL:C 계산의 열방출률(`hrrpuv`)을 따릅니다. GPU에서 돌고, 결과 불꽃은 복사 없이 렌더러로
+넘어갑니다.
+
+**사용 방법 1: 예제로 영상 만들기**
+
+```bat
+python C:\BULBIT\examples\render_fx_video.py iso9705_200kw_nvdb 20 25 fx_20_25
+python C:\BULBIT\examples\render_fx_video.py iso9705_200kw_nvdb 20 25 basic_20_25 --flame basic
+```
+
+20~25 s를 30 fps PNG(`frame_NNNN.png`)로 그리고, ffmpeg이 PATH에 있으면 `video.mp4`도 만듭니다. 첫 줄은 FX 불꽃, 둘째 줄은
+비교용 기본 불꽃(0.90 방식)입니다. FX는 시작 시각 3 s 전부터 미리 돌려(예열) 불꽃 크기를 맞춘 뒤 그립니다.
+
+| 옵션 | 뜻 |
+|---|---|
+| `--eye X Y Z`, `--target X Y Z`, `--hfov`, `--size W H` | 카메라(m, 계산 좌표). 주지 않으면 불꽃 중심 앞 4 m |
+| `--no-smoke`, `--bg R G B`, `--lights N` | 연기 빼기, 배경색, 불꽃 점광원 수(0이면 없음) |
+| `--box X0 Y0 Z0 X1 Y1 Z1` | FX 상자(m). 주지 않으면 그 구간의 코어 불꽃 둘레로 정합니다 |
+| `--walls x- y- z- ...` | 닫힌 상자 면. 주지 않으면 상자가 바닥에 닿을 때 바닥(`z-`)만 닫습니다 |
+| `--voxel` | FX 격자(m). 기본은 코어 칸의 1/6, 칸이 200만 개를 넘으면 키웁니다 |
+| `--set 이름=값` | FX 값(아래 표) |
+| `--pre` | 예열 시간(s, 기본 3) |
+
+**사용 방법 2: 스크립트에서 쓰기**
+
+```python
+import bulbit
+from bulbit.fx import FlameFX
+
+r = bulbit.Renderer(mode="primary")
+# ... 6.3절처럼 set_sigma(연기), set_look, set_ramps, 카메라를 준비합니다
+fx = FlameFX(r, "iso9705_200kw_nvdb", t0=20.0, t1=25.0)   # 상자와 격자는 그 구간의 코어 불꽃을 보고 정합니다
+print(fx.describe())                                      # 상자, 격자, 칸 수, 닫힌 면
+fx.start()                                                # t0 - 3 s부터 t0까지 예열
+while fx.t < fx.t1 - 1e-9:
+    st = fx.step()                                        # 1/30 s 진행. 렌더러의 불꽃이 FX 불꽃으로 바뀝니다
+    r.render([cam], W, H, depth=depth, download=False)
+    r.composite(bg=bg, out=out)
+fx.close()
+```
+
+- FX는 불꽃만 바꿉니다. 연기(`set_sigma`)는 프레임의 `smoke_sigma`를 6.3절처럼 따로 넣습니다.
+- `fx.step()`은 `FxStats`를 돌려줍니다: 시각, 단계 수, 최대 속도, 수명, FX 불꽃 부피와 코어 불꽃 부피, 상자 안 열방출(kW) 등.
+- `fx.download_flame()`은 불꽃 장(numpy)이고, `fx.lattice`는 그 격자입니다. 점광원은 이것으로 `lights_from_flame`을 부릅니다.
+- 다른 불꽃을 `set_flame`으로 넣으면 그 불꽃이 쓰이고, 다음 `fx.step()`에서 다시 FX 불꽃으로 바뀝니다.
+- Isaac Sim(6.4절)에서는 카메라 영상 1/30 s마다 `fx.step()`을 한 번 부르고 렌더하면 됩니다.
+
+**어떻게 만드나**
+
+- 코어 불꽃(`hrrpuv` > 200 kW/m³)의 바닥 칸에서 불꽃을 내보냅니다. 불꽃은 자기 열로 떠오르고, 수명 동안 줄어듭니다.
+- 불꽃 세기에 비례한 소용돌이 강화(와도 가둠)와 프레임당 2~8 단계 계산이 깜빡임과 작은 소용돌이를 만듭니다.
+- 크기: 수명을 매 프레임 조정해 FX 불꽃 부피가 코어 불꽃 부피를 따르게 합니다. 코어 불꽃(한 칸 넓힌) 밖으로 나간 불꽃은 지웁니다.
+- 속도: 기본 모드에는 속도가 없으므로, 3.5·Q^(1/5) m/s(Q = 상자 안 열방출, kW)를 넘는 속도는 되돌립니다. 200 kW면 약 10 m/s입니다.
+
+**자주 바꾸는 값** (`--set 이름=값` 또는 `FlameFX(..., 이름=값)`. 전체 목록은 `bulbit.fx.default_params()`)
+
+| 이름 | 기본값 | 뜻 |
+|---|---|---|
+| `epsf` | 1.36 | 불꽃 안 소용돌이 세기. 낮추면 차분해집니다 |
+| `eps0` | 0.15 | 불꽃 밖 소용돌이 세기 |
+| `size_ratio` | 1.0 | FX 불꽃 부피 ÷ 코어 불꽃 부피의 목표. 키우면 불꽃이 커집니다 |
+| `t_max` | 0.40 | 불꽃 온도(무차원). 높이면 빨리 오릅니다 |
+| `u_cap` | 3.5 | 속도 상한 계수(0이면 끔) |
+| `n_max` | 8 | 프레임당 최대 계산 단계 |
+
+**벽에 붙은 불.** 기본 모드 프레임에는 벽 정보가 없습니다. 벽 옆 불은 상자를 벽에 맞추고 그 면을 닫으면 벽을 따라 섭니다.
+예: 방 구석(벽 x = −0.1 m, y = −0.1 m, 천장 2.4 m)의 버너는 `--box -0.1 -0.1 0 0.9 0.9 2.4 --walls x- y- z- z+`.
+
+**속도와 메모리.** RTX 5070 Ti에서 칸 25만~80만 개(1.7 cm 격자, 상자 1~2 m)에 프레임당 5~20 ms가 걸립니다(렌더 제외).
+GPU 메모리는 칸 100만 개에 약 100 MB입니다.
+
+**한계** (기본 모드라서)
+
+- 프레임에 속도가 없어서, 바람이나 문 쪽 흐름에 기운 불꽃도 FX에서는 곧게 섭니다. 코어 불꽃 밖으로 나간 부분은 지워지므로
+  기운 불꽃은 실제보다 낮고 넓어 보일 수 있습니다.
+- 벽과 바닥 말고 다른 장애물(차 등)은 모릅니다. 불꽃이 그 안으로 들어갈 수 있으니 엔진의 깊이 버퍼로 가립니다(6.4절).
+- 연기는 바꾸지 않습니다(코어의 `smoke_sigma` 그대로).
+
 ---
 
 ## 7. C / C++에서 쓰기
 
-- 헤더 `include/bulbit.h`, 라이브러리 `bin/bulbit.dll`. ABI 버전은 `bb_abi_version()`(지금 3)으로 확인합니다.
+- 헤더 `include/bulbit.h`, 라이브러리 `bin/bulbit.dll`. ABI 버전은 `bb_abi_version()`(지금 4)으로 확인합니다.
 - 흐름: `bb_renderer_new(mode, device, &r)` → `bb_set_sigma` / `bb_set_flame`(호스트 복사) 또는 `*_device`(장치 포인터 빌림)
   → `bb_set_look`(`bb_look_v0/v1/v2`로 채움), `bb_set_ramps`(`bb_ramps_v0`), `bb_set_lights` → `bb_render` → `bb_composite` 또는
   `bb_download_last` → `bb_renderer_free`.
 - 오류: 함수는 0(성공), 1(오류), 2(잡힌 패닉)를 돌려줍니다. 1이나 2면 `bb_last_error()`가 이유를 돌려줍니다. 2가 나온 렌더러는
   다시 쓰지 말고 해제합니다.
 - 격자 배열은 C 순서 [x][y][z](z가 가장 빠름), 원점은 셀 (0, 0, 0)의 낮은 모서리입니다.
+- 불꽃 세부(ABI 4, 0.91.0부터): `bb_fx_params_default(&p)`로 채운 뒤 상자(`box_lo`, `box_hi`), 격자(`voxel`),
+  닫힌 면(`walls`: 1 x−, 2 x+, 4 y−, 8 y+, 16 z−, 32 z+)을 정합니다.
+  → `bb_fx_setup(r, &p, &코어 격자)` → 코어 프레임마다 `bb_fx_core_frame(r, t, hrrpuv, n)`(시간 순서, 호스트 배열)
+  → `bb_fx_start(r, t0)` → 매 프레임 `bb_fx_step(r, &stats)` → `bb_render` → 다 쓰면 `bb_fx_clear(r)`.
+  `bb_fx_start`와 `bb_fx_step`은 FX 불꽃을 렌더러의 불꽃으로 둡니다. 렌더러 하나에 FX 하나입니다.
 
 ---
 
@@ -297,6 +387,10 @@ Isaac Sim이나 Isaac Lab의 Python에서 `bulbit`을 불러 카메라마다 불
 | `VRAM` | GPU 메모리 부족 | 격자를 줄이거나 셀을 키웁니다 |
 | `bulbit.dll not found` | `BULBIT_DLL`이 틀림 | 6.1절대로 맞춤 |
 | `BUL:BIT Pro is locked` | Pro 기능을 요청함 | 기본 모드 기능만 씁니다 |
+| `the flame detail (FX) needs bulbit.dll ABI 4` | 0.90.0 등 FX가 없는 `bulbit.dll`을 씀 | `BULBIT_DLL`을 0.91.0의 `bin\bulbit.dll`로 |
+| `the frames carry no hrrpuv grid` | `hrrpuv`가 없는 옛 프레임 | 0.90.0 이후 `bulbit_sim`으로 다시 계산 |
+| `no core flame (hrrpuv > 200 kW/m3)` | 그 구간에 불꽃이 없음 | 시작·끝 시각을 바꾸거나 `--box`를 줌 |
+| FX 불꽃이 너무 크거나 작음 | 크기 목표 | `--set size_ratio=0.7`(작게) 또는 `1.5`(크게) |
 
 ---
 
